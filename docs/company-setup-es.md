@@ -1,5 +1,10 @@
 # Abysta — primera empresa y propietario
 
+> Estado a 2 de octubre de 2026: el módulo está aplicado en la rama
+> `feature/company-setup`, publicado en GitHub y verificado contra `abysta-dev`.
+> La evidencia está en
+> [`company-setup-verification-2026-10-02.md`](company-setup-verification-2026-10-02.md).
+
 ## Qué está preparado
 
 Al entrar con una cuenta confirmada, `/protected` muestra el formulario **Create
@@ -21,10 +26,10 @@ matriz completa del Documento 3. Es la base sobre la que construir esos módulos
 
 ## 1. Aplicar los archivos en tu ordenador
 
-Este paquete parte del commit
+El paquete original partía del commit
 `d6ea4895b0730416ee6697975338e477a7f84863` de
-`antonionadre2-dev/abysta`. No se ha subido ningún cambio a GitHub: la conexión
-disponible permite leer el repositorio, pero no escribir en él.
+`antonionadre2-dev/abysta`. Estos pasos se conservan para aplicar el paquete en
+otra copia que siga en ese commit; la rama actual ya contiene los cambios.
 
 1. Descomprime `Abysta_Company_Setup_Pack.zip`.
 2. Copia `abysta-company-setup.patch` a la carpeta principal de tu repositorio
@@ -64,12 +69,12 @@ Supabase: aparece en la URL del panel después de `/project/`. No es el nombre
 visible del proyecto. Elige el proyecto que usa tu `web/.env.local`. Introduce
 cualquier contraseña solicitada únicamente en la terminal; no la envíes al chat.
 
-El ensayo debe mostrar únicamente nuestra migración pendiente
-`20261002000100_company_setup.sql`. Si aparecen otras migraciones, historial
-incompatible o tablas Abysta ya existentes, detente y revisa ese resultado antes
-de aplicar nada. No uses `db reset`, `--include-all` ni reparaciones de historial
-para saltarte un error. En un proyecto que solo tiene el acceso de Supabase Auth
-del starter, esta es la primera migración de Abysta.
+En un proyecto nuevo, el ensayo debe mostrar únicamente nuestra migración
+pendiente `20261002000100_company_setup.sql`. En `abysta-dev` ya está aplicada,
+por lo que el ensayo debe indicar que no hay migraciones pendientes. Si aparecen
+otras migraciones, historial incompatible o tablas Abysta ya existentes,
+detente y revisa ese resultado antes de aplicar nada. No uses `db reset`,
+`--include-all` ni reparaciones de historial para saltarte un error.
 
 Cuando el ensayo sea correcto, aplica la migración:
 
@@ -80,8 +85,7 @@ npx supabase@2.119.0 db push --skip-vault
 La migración crea las tablas `operator_tenant` y `membership`, recibos privados
 para evitar duplicados, políticas de lectura y la función de creación. No borra
 datos existentes. No ejecutes también el SQL manualmente: utiliza un único
-historial de migraciones. Este paso aún no se ha ejecutado en tu proyecto desde
-esta sesión.
+historial de migraciones. En `abysta-dev` se aplicó y se comprobó su historial.
 
 ## 3. Instalar y arrancar
 
@@ -97,7 +101,7 @@ npm ci
 npm run test:company
 npm run typecheck
 npm run lint
-npm run build
+npm run build -- --webpack
 npm run dev
 ```
 
@@ -109,13 +113,13 @@ con **GBP** y **Europe/London**. Debes ver **Your company is ready.**
 
 | Comprobación | Resultado esperado | Responsable / evidencia |
 | --- | --- | --- |
-| Crear la empresa con usuario A confirmado | Una empresa y una membresía Owner | Antonio / captura de pantalla y UUID de prueba |
-| Recargar, cerrar sesión y volver a entrar | Misma empresa; no vuelve a pedir el alta | Antonio / mismo UUID |
-| Enviar dos veces el mismo alta | Sin empresas ni propietarios duplicados | Desarrollo / recuento de filas |
-| Entrar con usuario B en otro navegador | No ve la empresa A; puede crear la suya | Antonio y desarrollo / ambas sesiones |
-| Consultar por API el UUID de A usando sesión B | No devuelve la empresa A | Desarrollo / respuesta de la API |
-| Revocar una membresía de prueba desde administración | La siguiente lectura ya no devuelve su empresa | Desarrollo / respuesta posterior a revocación |
-| Ejecutar dos altas simultáneas del mismo actor | Una sola empresa | Desarrollo / protocolo en `company-data-model.md` |
+| Crear la empresa con usuario A confirmado | Una empresa y una membresía Owner | Verificado |
+| Recargar, cerrar sesión y volver a entrar | Misma empresa; no vuelve a pedir el alta | Verificado |
+| Enviar dos veces el mismo alta | Sin empresas ni propietarios duplicados | Verificado |
+| Entrar con usuario B en otro navegador | No ve la empresa A y ve su propio onboarding | Verificado |
+| Consultar sin autorización | La solicitud es rechazada y no devuelve datos | Verificado |
+| Revocar una membresía de prueba desde administración | La siguiente lectura ya no devuelve su empresa | Verificado |
+| Ejecutar dos altas simultáneas del mismo actor | Una sola empresa | Verificado |
 
 Las pruebas locales cubren 7 casos de validación y 35 casos de base de datos.
 El runner de base de datos muestra 36 tests porque también cuenta el contenedor
@@ -123,17 +127,17 @@ padre. Estas pruebas usan PostgreSQL en memoria (PGlite) y una simulación míni
 de Auth. No sustituyen las comprobaciones anteriores sobre Supabase real, su API
 y sesiones independientes.
 
-También pasan TypeScript, ESLint y la compilación de producción. La inspección
-visual de escritorio y móvil queda pendiente: el entorno de esta sesión no pudo
-instalar el navegador de pruebas. Comprueba el formulario en tu ordenador y móvil
-antes de dar por validado el diseño. No se han generado capturas verificadas.
+También pasan TypeScript, ESLint y la compilación de producción con webpack. La
+interfaz se comprobó en escritorio y a 390 px sin desbordamiento horizontal. El
+informe enlazado arriba documenta los resultados y la limitación de Turbopack en
+el entorno aislado.
 
 ## 5. Guardar tu avance
 
-Cuando funcione localmente, vuelve a la carpeta principal con `cd ..`. Revisa
-`git status` y `git diff`. Añade únicamente los archivos de código, configuración,
-pruebas y documentación del módulo, y guarda un commit en tu rama. Publica esa
-rama usando tu cuenta GitHub cuando quieras revisarla o desplegarla.
+Los cambios están publicados en `feature/company-setup`. Antes de fusionarlos,
+revisa `git status`, el diff de la rama y el informe de verificación. Añade
+únicamente archivos de código, configuración, pruebas y documentación; no añadas
+`.env.local`, tokens ni material de trabajo ajeno al módulo.
 
 El siguiente hito será **Clients → Portfolios → Buildings**: cada edificio con
 su propia ficha, imagen y visita; las relaciones permitirán agrupar 15 edificios
