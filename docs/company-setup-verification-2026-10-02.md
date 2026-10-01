@@ -66,6 +66,7 @@ Supabase en el repositorio.
 
 ## Fuera de este hito
 
-La rama todavía no se ha fusionado con `main` ni desplegado en Vercel. Al
-importar el repositorio en Vercel se debe mantener **Root Directory** en `web`.
-Clientes, portfolios, edificios y visitas pertenecen a los siguientes hitos.
+Este informe se generó antes de integrar la rama en `main`. El despliegue en
+Vercel no formó parte de este hito; al importar el repositorio se debe mantener
+**Root Directory** en `web`. Clientes, portfolios, edificios y visitas
+pertenecen a los siguientes hitos.
