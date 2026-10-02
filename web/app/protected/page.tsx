@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { Suspense } from "react";
+import Link from "next/link";
 import { AlertCircle, Building2, Check, Globe2, ShieldCheck, Wallet } from "lucide-react";
 import { CreateCompanyForm } from "@/components/company/create-company-form";
 import { WorkspaceLoading } from "@/components/company/workspace-loading";
@@ -70,6 +71,9 @@ async function WorkspaceContent() {
                 <dd className="mt-2 flex flex-wrap gap-2">{roles.map((role) => <span key={role} className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold capitalize text-slate-700 dark:bg-slate-800 dark:text-slate-200">{humanise(role)}</span>)}</dd>
               </div>
             </dl>
+            <div className="border-t border-slate-100 px-6 py-5 sm:px-7 dark:border-slate-800">
+              {roles.includes("owner") ? <Link href={`/protected/workspaces/${company.id}/clients`} className="inline-flex min-h-11 items-center rounded-lg bg-teal-700 px-5 text-sm font-semibold text-white hover:bg-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-700 dark:bg-teal-400 dark:text-slate-950">Open clients</Link> : <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">The client directory is currently available to company owners. Contact your owner about access.</p>}
+            </div>
           </article>
         ))}
       </div>
