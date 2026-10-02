@@ -45,3 +45,17 @@ code before opening the authenticated password form. Keep the Reset password
 email template on `{{ .ConfirmationURL }}` for this flow. The remaining
 end-to-end check requires a fresh recovery email and is temporarily blocked by
 the hosted email rate limit.
+
+## Site Visits 3B
+
+This increment adds reusable building floors/zones and revision-specific measured
+quantities, provenance and observations. Structure changes have an independent
+optimistic version; legacy questionnaire saves preserve measurement snapshots.
+The new migration `20261002004000_site_visit_layout.sql` is applied in
+`abysta-dev`; the final linked dry-run reports no pending migrations. Local suites
+and a hosted, tenant-isolated acceptance run passed, and all temporary rows and
+Auth users were removed with an exact before/after data fingerprint match. Follow the
+[Spanish integration and acceptance guide](docs/site-visits-3b-setup-es.md),
+[data contract](docs/site-visits-3b-data-model.md) and
+[verification report](docs/site-visits-3b-verification-2026-10-02.md). The remaining
+manual gate is the keyboard and Back-gesture check on a physical mobile device.

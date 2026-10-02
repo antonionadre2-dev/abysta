@@ -26,11 +26,14 @@ export async function saveSiteVisitAction(_previous:VisitActionState,formData:Fo
       RECORD_NOT_FOUND:"This visit or building is no longer available. Open the building in another tab to check.",
       PARENT_ARCHIVED:"This client or building is archived. Restore it before saving a visit.",
       STALE_RECORD:"This visit has changed since you opened it. Your entries are preserved below; review the current saved version before editing again.",
+      STALE_INVENTORY:"The building structure changed in another visit. Your entries are preserved. Open the saved visit or building in another tab, then reload and use the current building structure before saving.",
       REQUEST_KEY_REUSED:"This request was already saved with different details. Your entries are preserved; open the saved visit to check what was recorded.",
       IMMUTABLE_SITE:"A visit cannot be moved to another building. Open it from its original building.",
+      PAYLOAD_TOO_LARGE:"This visit exceeds the 512 KB storage limit. Shorten long notes or reduce the number of zones before saving.",
+      INVALID_LAYOUT_ID:"A floor or zone identity belongs to a different building or placement. Remove that draft item and add it again with a new identity.",
       INVALID_INPUT:"The visit contains invalid details. Check your answers and try again.",
     };
-    return {error:messages[response.error.message]??"We couldn’t confirm the save. Keep your entries unchanged and try again; the same request will be checked.",conflict:["STALE_RECORD","REQUEST_KEY_REUSED"].includes(response.error.message)};
+    return {error:messages[response.error.message]??"We couldn’t confirm the save. Keep your entries unchanged and try again; the same request will be checked.",conflict:["STALE_RECORD","STALE_INVENTORY","REQUEST_KEY_REUSED"].includes(response.error.message),conflictKind:response.error.message==="STALE_INVENTORY"?"inventory":response.error.message==="STALE_RECORD"?"visit":response.error.message==="REQUEST_KEY_REUSED"?"request":undefined};
   }
   if (response.data!==id) return {error:"We couldn’t confirm the saved visit. Open the building in another tab before retrying."};
   const base=`/protected/workspaces/${tenantId}/clients/${clientId}/buildings/${siteId}`;

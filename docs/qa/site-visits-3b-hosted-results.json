@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261002092556665-e595f56a",
+  "date": "2026-10-02",
+  "project": {
+    "name": "abysta-dev",
+    "ref": "vplvaitpxcpnfuhvwlxb"
+  },
+  "status": "passed-and-cleaned",
+  "migration": {
+    "version": "20261002004000",
+    "file": "20261002004000_site_visit_layout.sql",
+    "localAndRemoteHistoryMatch": true,
+    "finalDryRunPending": []
+  },
+  "scope": {
+    "temporaryAuthUsers": 2,
+    "temporaryTenants": 2,
+    "temporaryClients": 1,
+    "temporarySites": 1,
+    "temporaryVisits": 2,
+    "temporaryRevisions": 5,
+    "temporaryFloors": 1,
+    "temporaryZones": 4,
+    "temporaryInventories": 1,
+    "portfolio15BuildingScenarioRepeatedHosted": false,
+    "portfolioReason": "Already accepted in hosted 3A and covered by the 3B local SQL suites.",
+    "physicalMobileTest": "pending"
+  },
+  "checks": [
+    { "name": "linked project and key guard", "status": "passed" },
+    { "name": "04000 schema visibility and baseline", "status": "passed" },
+    { "name": "temporary confirmed users and ordinary JWT sessions", "status": "passed" },
+    { "name": "isolated tenants through public RPC", "status": "passed" },
+    { "name": "client and building through owner RPC", "status": "passed" },
+    { "name": "150 known floor area plus one pending and 20 glass area", "status": "passed" },
+    { "name": "explicit zero distinct from not applicable", "status": "passed" },
+    { "name": "request idempotency and key binding", "status": "passed" },
+    { "name": "same-visit concurrency returns HTTP 409 STALE_RECORD", "status": "passed" },
+    { "name": "historical snapshot remains frozen after rename", "status": "passed" },
+    { "name": "second visit reuses stable IDs with blank observations", "status": "passed" },
+    { "name": "cross-visit concurrency returns HTTP 409 STALE_INVENTORY", "status": "passed" },
+    { "name": "losing transaction rolls back", "status": "passed" },
+    { "name": "old receipt returns the original ID without changing inventory version, visit version or revision count", "status": "passed" },
+    { "name": "RLS, anonymous access and direct writes denied", "status": "passed" },
+    { "name": "membership revocation invalidates the same JWT", "status": "passed" }
+  ],
+  "cleanup": {
+    "temporaryMembershipsRevokedBeforeDeletion": 2,
+    "applicationRowsRemoved": true,
+    "temporaryAuthUsersHardDeleted": 2,
+    "immutableTriggersReenabledAndVerified": true,
+    "fingerprintRelationsCompared": 19,
+    "beforeAfterFingerprintExactMatch": true,
+    "rolledBackCleanupAttemptsBeforeSuccess": 2,
+    "rollbackReasons": [
+      "schema-qualified COALESCE syntax in a guard",
+      "deferred foreign-key events had to be checked before trigger re-enable"
+    ]
+  },
+  "artifactSha256": {
+    "migration": "3788f39db24594fa34e4bcef14625ccd1cbd82192078f5b64d968c127a51a407",
+    "acceptanceEvidence": "2384d42c4504759c658dc51312aaca467a8e2d5dff1df84194d17a39de703dfb",
+    "executedCleanupSql": "3804818344ac1071d41dd818808494d1f6363407e6cbd510bee4c84d250f6e32",
+    "executedAuthDeletionGuard": "bcc6caeb15cf60708d6e4907db50288774e256573f610ebe05e0838f3af86347",
+    "beforeAfterFingerprintQuery": "dbafb64edce7244f06f876c6e0a0e5faa7303757701c56cf2ddaad121c2e1f39"
+  },
+  "finalFingerprint": {
+    "abysta_private.company_setup_request": { "rows": 1, "md5": "df769854fba67b40362091e6334a385d" },
+    "abysta_private.directory_image_request": { "rows": 0, "md5": "d41d8cd98f00b204e9800998ecf8427e" },
+    "abysta_private.directory_request": { "rows": 2, "md5": "81cb76385c54d1811db33e9dc93288a8" },
+    "abysta_private.site_visit_request": { "rows": 0, "md5": "d41d8cd98f00b204e9800998ecf8427e" },
+    "auth.users/id-email": { "rows": 1, "md5": "4d0f012660e9d2f39fa0c56adbbbd30f" },
+    "public.asset_version": { "rows": 0, "md5": "d41d8cd98f00b204e9800998ecf8427e" },
+    "public.client_company": { "rows": 1, "md5": "5b4af7f31f25d3126e3df1e29dd8d4cb" },
+    "public.client_contact": { "rows": 2, "md5": "300b5579ced1322aaca1470bdd17f2c4" },
+    "public.membership": { "rows": 1, "md5": "c796402ab66c47fe6efa5df4585edd6a" },
+    "public.operator_tenant": { "rows": 1, "md5": "0d05854bc6316b404bddadc27d4b817f" },
+    "public.portfolio": { "rows": 0, "md5": "d41d8cd98f00b204e9800998ecf8427e" },
+    "public.portfolio_site": { "rows": 0, "md5": "d41d8cd98f00b204e9800998ecf8427e" },
+    "public.site": { "rows": 1, "md5": "34014d8dc882d1d02c0f9182c5790247" },
+    "public.site_floor": { "rows": 0, "md5": "d41d8cd98f00b204e9800998ecf8427e" },
+    "public.site_inventory": { "rows": 0, "md5": "d41d8cd98f00b204e9800998ecf8427e" },
+    "public.site_visit": { "rows": 0, "md5": "d41d8cd98f00b204e9800998ecf8427e" },
+    "public.site_zone": { "rows": 0, "md5": "d41d8cd98f00b204e9800998ecf8427e" },
+    "public.visit_revision": { "rows": 0, "md5": "d41d8cd98f00b204e9800998ecf8427e" },
+    "storage.objects/abysta-directory-images": { "rows": 0, "md5": "d41d8cd98f00b204e9800998ecf8427e" }
+  }
+}

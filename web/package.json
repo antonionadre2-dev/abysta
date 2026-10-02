@@ -15,7 +15,10 @@
     "test:directory:images": "node --experimental-strip-types --test tests/directory-images.test.mjs && node --test ../supabase/tests/directory-images.test.mjs",
     "test:visits:validation": "node --experimental-strip-types --test tests/site-visits-validation.test.mjs",
     "test:visits:database": "node --test ../supabase/tests/site-visits.test.mjs",
-    "test:visits": "npm run test:visits:validation && npm run test:visits:database"
+    "test:visits": "npm run test:visits:validation && npm run test:visits:database",
+    "test:visits:layout:validation": "node --experimental-strip-types --test tests/site-visit-layout.test.mjs",
+    "test:visits:layout:database": "node --test ../supabase/tests/site-visit-layout.test.mjs",
+    "test:visits:layout": "npm run test:visits:layout:validation && npm run test:visits:layout:database"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.1",

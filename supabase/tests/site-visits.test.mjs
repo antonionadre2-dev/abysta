@@ -24,7 +24,7 @@ test('Site Visits 3A SQL: owner isolation, typed drafts, immutable revisions and
  create table auth.users(id uuid primary key,email_confirmed_at timestamptz);
  create function auth.uid()returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid;$$;
  grant usage on schema auth,public to anon,authenticated;grant execute on function auth.uid()to anon,authenticated;`);
- for(const file of ['20261002000100_company_setup.sql','20261002002000_directory.sql','20261002003000_site_visits.sql'])await db.exec(await readFile(new URL(`../migrations/${file}`,import.meta.url),'utf8'));
+ for(const file of ['20261002000100_company_setup.sql','20261002002000_directory.sql','20261002003000_site_visits.sql','20261002004000_site_visit_layout.sql'])await db.exec(await readFile(new URL(`../migrations/${file}`,import.meta.url),'utf8'));
  for(let n=1;n<=9;n++)await db.query('insert into auth.users values($1,now())',[uuid(n)]);
  async function asActor(actor,fn,role='authenticated'){
   await db.exec('begin');try{await db.exec(`set local role ${role}`);await db.query("select set_config('request.jwt.claim.sub',$1,true)",[actor??'']);const result=await fn();await db.exec('commit');return result;}catch(e){await db.exec('rollback');throw e;}

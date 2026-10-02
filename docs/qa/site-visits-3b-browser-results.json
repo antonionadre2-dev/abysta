@@ -1,0 +1,84 @@
+{
+  "scope": "Actual 3B UI and real form validator in an isolated fixture copy. Synthetic reads and deliberately mocked save conflicts only. No hosted Supabase Auth, persistence, RLS, PostgREST or Storage enforcement claimed.",
+  "checks": [
+    "Desktop saved layout fits viewport",
+    "Summary separates 150 m\u00b2 floor, 20 m\u00b2 glass, 300 m\u00b2 reference, one pending zone and one N/A",
+    "Saved zone shows measurement sources, notes, material, restrictions and distinct units",
+    "Desktop layout editor fits viewport",
+    "Edit initializes exact saved zero, unknown and N/A measurements",
+    "All layout controls have associated labels and distinct DOM identities",
+    "Duplicate creates new identity, focuses name, and clears all quantities, sources and observations",
+    "Layout-only edits trigger unsaved-change warning and cancellation retains data",
+    "Zone removal requires confirmation; cancel preserves draft and confirm removes it",
+    "Add floor and zone preserves parent identity; confirmed floor removal removes draft children",
+    "Changing populated measurement status can be cancelled without losing source or quantity",
+    "Real server validation requires unknown reason, focuses errors and preserves measurements",
+    "Measurement error link opens nested zone and moves keyboard focus to its measurement group",
+    "Simulated conflict freezes floor/zone editing and preserves draft with canonical saved-visit link",
+    "Mobile new layout fits viewport",
+    "New visit reuses building identities and resets every observation and reference measurement",
+    "Mobile open measurement fields fits viewport",
+    "Mobile save controls remain in normal document flow and measured zero is retained",
+    "Offline indicator prevents saves and retains layout entries until reconnect",
+    "First-save inventory conflict explains unsaved status and recovers to a fresh visit instead of nonexistent saved record",
+    "Tablet stale inventory fits viewport",
+    "Explicit inventory reconciliation confirms removals, refreshes structure and retains surviving measurements",
+    "Read-only historical revision retains 125 m\u00b2 and original floor names independently of current 150 m\u00b2",
+    "Legacy revision without layout displays unrecorded state rather than empty/zero building",
+    "Browser Back after layout-only change warns and cancellation keeps new-visit draft"
+  ],
+  "pageErrors": [],
+  "screenshots": [
+    "01_saved_layout_desktop.png",
+    "02_saved_reception_desktop.png",
+    "03_layout_editor_desktop.png",
+    "04_reception_measurements_desktop.png",
+    "05_new_layout_mobile.png",
+    "06_measurement_mobile.png",
+    "07_structure_changed_tablet.png",
+    "08_reconciled_layout_tablet.png",
+    "09_historical_layout_desktop.png"
+  ],
+  "tested_source_files": [
+    {
+      "path": "components/site-visits/visit-layout.tsx",
+      "sha256": "d1d078299e743f90c9f30481a493fd846794b07d5a43434a89509354f6d4285b",
+      "matches_current_source": true
+    },
+    {
+      "path": "components/site-visits/visit-form.tsx",
+      "sha256": "d4bebb3339b39735b055b1a35543c5483e6db34e2683276bc9f59bf7a57a9287",
+      "matches_current_source": true
+    },
+    {
+      "path": "components/site-visits/visit-pages.tsx",
+      "sha256": "53e5ff46ba5e9a4550a0aaf3f34f6d23352f7ab4e27f53c998d731b0ca796420",
+      "matches_current_source": true
+    },
+    {
+      "path": "components/site-visits/visit-ui.tsx",
+      "sha256": "9deb4839f092ab7b47261c5927bd2e504606387ed2772441bf04861cd62bdda2",
+      "matches_current_source": true
+    },
+    {
+      "path": "components/site-visits/visit-list.tsx",
+      "sha256": "daa8409cf32c03b5d23bb7f007dfbc614b5ef0893dd53db2728670cda482f23b",
+      "matches_current_source": true
+    },
+    {
+      "path": "lib/site-visits/layout.ts",
+      "sha256": "35f3624093568987c6676e11043c783305ae1990cd3779c99e96e22b473f526e",
+      "matches_current_source": true
+    },
+    {
+      "path": "lib/site-visits/validation.ts",
+      "sha256": "19c41015c3b3265cd80a313e7ddd5012c2d19e24946f22fc40eb0991f5767a12",
+      "matches_current_source": true
+    },
+    {
+      "path": "lib/site-visits/types.ts",
+      "sha256": "63142d6c4590ce11e87ed3c0b3caaddbc240a8c1f555ef29df7fba19010a5901",
+      "matches_current_source": true
+    }
+  ]
+}

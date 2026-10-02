@@ -48,3 +48,12 @@ async function readAll<T extends {id:string}>(tenantId:string,clientId:string,si
 }
 export function getSiteVisits(tenantId:string,clientId:string,siteId:string) { return readAll<VisitListRecord>(tenantId,clientId,siteId); }
 export function getVisitRevisions(tenantId:string,clientId:string,siteId:string,visitId:string) { return readAll<RevisionSummary>(tenantId,clientId,siteId,visitId); }
+
+export async function getSiteInventory(tenantId:string,clientId:string,siteId:string):Promise<import("./layout").SiteInventory> {
+  checkIds(tenantId,clientId,siteId);
+  const {supabase}=await getDirectoryContext(tenantId);
+  const {data,error}=await supabase.rpc("get_site_inventory",{p_tenant_id:tenantId,p_client_id:clientId,p_site_id:siteId});
+  readError(error);
+  if (!data || !Number.isSafeInteger(data.version) || !data.structure) throw new Error("The building structure could not be loaded. Please try again.");
+  return data as import("./layout").SiteInventory;
+}

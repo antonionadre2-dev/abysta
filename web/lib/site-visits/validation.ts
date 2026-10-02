@@ -1,3 +1,4 @@
+import { validateLayout, MAX_VISIT_PAYLOAD_BYTES } from "./layout.ts";
 import rawTemplate from "./questionnaire.json" with { type: "json" };
 import type { VisitActionState, VisitPayload, VisitTemplate, VisitAnswer } from "./types";
 
@@ -21,9 +22,14 @@ export function validateVisitPayload(raw: unknown):
   | { ok: true; data: VisitPayload }
   | { ok: false; state: VisitActionState } {
   const errors: Record<string, string> = {};
-  if (!object(raw) || !exactKeys(raw, [...Object.keys(fields), "answers"])) {
+  if (!object(raw) || !exactKeys(raw, [...Object.keys(fields), "answers", ...(Object.hasOwn(raw, "layout") ? ["layout"] : [])])) {
     return { ok: false, state: { error: "The visit data is invalid. Keep your entries and reload the saved visit in another tab." } };
   }
+  try {
+    if (new TextEncoder().encode(JSON.stringify(raw)).length > MAX_VISIT_PAYLOAD_BYTES) return {ok:false,state:{error:"This visit is too large to save. Shorten long notes or reduce the number of zones (maximum 512,000 bytes)."}};
+  } catch { return {ok:false,state:{error:"The visit data is invalid."}}; }
+  const layoutResult = Object.hasOwn(raw, "layout") ? validateLayout(raw.layout) : undefined;
+  if (layoutResult && !layoutResult.ok) Object.assign(errors, layoutResult.errors);
   const text: Record<string,string> = {};
   for (const [key,[min,max,multiline]] of Object.entries(fields)) {
     const value = raw[key];
@@ -68,7 +74,7 @@ export function validateVisitPayload(raw: unknown):
     if (!errors[key]) answers[question.id] = { state, value, source, note } as VisitAnswer;
   }
   if (Object.keys(errors).length) return { ok:false, state: { error: "Check the highlighted fields. Your entries have not been saved.", fieldErrors: errors } };
-  return { ok:true, data: { ...text, answers } as VisitPayload };
+  return { ok:true, data: { ...text, answers, ...(layoutResult?.ok ? {layout:layoutResult.data} : {}) } as VisitPayload };
 }
 export function validateSiteVisitForm(form: FormData):
   | { ok:true; value:{tenantId:string;clientId:string;siteId:string;id:string;expectedVersion:number;requestId:string;data:VisitPayload} }
@@ -77,9 +83,10 @@ export function validateSiteVisitForm(form: FormData):
   const names=["tenant_id","client_id","site_id","id","request_id"];
   const ids=names.map(name=>read(name)?.trim().toLowerCase());
   const version=read("expected_version")?.trim(); const payload=read("payload");
-  if (ids.some(id=>!id || !uuid.test(id)) || version===null || version===undefined || !/^(0|[1-9][0-9]*)$/.test(version) || (!Number.isSafeInteger(Number(version)) || Number(version)>=Number.MAX_SAFE_INTEGER) || payload===null || payload.length>131072) {
+  if (ids.some(id=>!id || !uuid.test(id)) || version===null || version===undefined || !/^(0|[1-9][0-9]*)$/.test(version) || (!Number.isSafeInteger(Number(version)) || Number(version)>=Number.MAX_SAFE_INTEGER) || payload===null) {
     return {ok:false,state:{error:"This form is invalid. Open the saved visit in another tab before trying again."}};
   }
+  if (new TextEncoder().encode(payload).length>MAX_VISIT_PAYLOAD_BYTES) return {ok:false,state:{error:"This visit is too large to save. Shorten long notes or reduce the number of zones (maximum 512,000 bytes)."}};
   let parsed:unknown;
   try { parsed=JSON.parse(payload); } catch { return {ok:false,state:{error:"The visit could not be read. Keep your entries and try again."}}; }
   const result=validateVisitPayload(parsed); if (!result.ok) return result;
