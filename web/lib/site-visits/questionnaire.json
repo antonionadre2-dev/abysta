@@ -1,0 +1,183 @@
+{
+  "key": "office-cleaning-v1",
+  "version": 1,
+  "title": "Office cleaning \u00b7 initial survey",
+  "sections": [
+    {
+      "id": "requirements",
+      "title": "Client requirements",
+      "description": "Understand what the client needs and what needs to improve."
+    },
+    {
+      "id": "operations",
+      "title": "Building operations",
+      "description": "Record when the building is used and when cleaning can take place."
+    },
+    {
+      "id": "access",
+      "title": "Access and facilities",
+      "description": "Confirm practical arrangements and restrictions for the service."
+    },
+    {
+      "id": "followup",
+      "title": "Unvisited areas and follow-up",
+      "description": "Make information gaps visible before the next stage."
+    }
+  ],
+  "questions": [
+    {
+      "id": "service_type",
+      "section": "requirements",
+      "label": "Which service is being assessed?",
+      "type": "select",
+      "required": true,
+      "allow_na": false,
+      "options": [
+        {
+          "value": "recurring",
+          "label": "Recurring cleaning"
+        },
+        {
+          "value": "initial",
+          "label": "Initial / deep clean"
+        },
+        {
+          "value": "periodic",
+          "label": "Periodic cleaning"
+        },
+        {
+          "value": "mixed",
+          "label": "Mixed services"
+        }
+      ]
+    },
+    {
+      "id": "client_objectives",
+      "section": "requirements",
+      "label": "What does the client want to achieve?",
+      "type": "text",
+      "required": true,
+      "allow_na": false
+    },
+    {
+      "id": "current_issues",
+      "section": "requirements",
+      "label": "What is not working in the current service?",
+      "type": "text",
+      "required": false,
+      "allow_na": true
+    },
+    {
+      "id": "client_requirements",
+      "section": "requirements",
+      "label": "What requirements or exclusions has the client specified?",
+      "type": "text",
+      "required": true,
+      "allow_na": true
+    },
+    {
+      "id": "operating_hours",
+      "section": "operations",
+      "label": "When is the building open or occupied?",
+      "type": "text",
+      "required": true,
+      "allow_na": false
+    },
+    {
+      "id": "cleaning_window",
+      "section": "operations",
+      "label": "When can cleaning take place?",
+      "type": "text",
+      "required": true,
+      "allow_na": false
+    },
+    {
+      "id": "service_days",
+      "section": "operations",
+      "label": "How many days per week are being considered?",
+      "type": "number",
+      "required": false,
+      "allow_na": true,
+      "unit": "days / week",
+      "min": 0,
+      "max": 7,
+      "integer": true
+    },
+    {
+      "id": "typical_occupancy",
+      "section": "operations",
+      "label": "What is the typical number of occupants?",
+      "type": "number",
+      "required": false,
+      "allow_na": true,
+      "unit": "people",
+      "min": 0,
+      "max": 1000000,
+      "integer": true
+    },
+    {
+      "id": "access_arrangements",
+      "section": "access",
+      "label": "How will the cleaning team access the building?",
+      "type": "text",
+      "required": true,
+      "allow_na": false
+    },
+    {
+      "id": "access_restrictions",
+      "section": "access",
+      "label": "Which access, security or safety restrictions apply?",
+      "type": "text",
+      "required": true,
+      "allow_na": true
+    },
+    {
+      "id": "water_available",
+      "section": "access",
+      "label": "Is a suitable water supply available?",
+      "type": "boolean",
+      "required": true,
+      "allow_na": false
+    },
+    {
+      "id": "power_available",
+      "section": "access",
+      "label": "Is a suitable power supply available?",
+      "type": "boolean",
+      "required": true,
+      "allow_na": false
+    },
+    {
+      "id": "storage_available",
+      "section": "access",
+      "label": "Is secure cleaning storage available?",
+      "type": "boolean",
+      "required": true,
+      "allow_na": false
+    },
+    {
+      "id": "waste_arrangements",
+      "section": "access",
+      "label": "How should waste be collected and removed?",
+      "type": "text",
+      "required": false,
+      "allow_na": true
+    },
+    {
+      "id": "unvisited_areas",
+      "section": "followup",
+      "label": "Which areas could not be inspected?",
+      "type": "text",
+      "required": true,
+      "allow_na": true
+    },
+    {
+      "id": "follow_up",
+      "section": "followup",
+      "label": "What else needs to be confirmed with the client?",
+      "type": "text",
+      "required": false,
+      "allow_na": true
+    }
+  ]
+}

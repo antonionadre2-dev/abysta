@@ -21,3 +21,12 @@ two new migrations and run the development acceptance scenario. Both migrations
 are applied in `abysta-dev`; see the
 [verification report](docs/directory-verification-2026-10-02.md) for the hosted
 acceptance evidence, cleanup and remaining production gates.
+
+## Site Visits 3A
+
+This milestone adds owner-only online visit drafts, a typed office-cleaning
+questionnaire and immutable saved revisions for each building. Its single
+migration is applied in `abysta-dev`; see the
+[Spanish setup guide](docs/site-visits-3a-setup-es.md) and
+[verification report](docs/site-visits-3a-verification-2026-10-02.md) for hosted
+acceptance, cleanup and remaining production gates.
