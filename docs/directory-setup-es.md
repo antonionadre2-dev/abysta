@@ -115,10 +115,18 @@ Con Supabase CLI ya vinculado a `abysta-dev`, comprueba las migraciones:
 npx supabase@2.119.0 db push --dry-run --skip-vault
 ```
 
-Deben aparecer únicamente estas dos migraciones nuevas, en este orden:
+En el paquete original de Directorio deben aparecer únicamente estas dos
+migraciones nuevas, en este orden:
 
 - `20261002002000_directory.sql`
 - `20261002002100_directory_images.sql`
+
+La rama actual de Site Visits añade después `03000` y la corrección
+`20261002003100_http_conflict_codes.sql`. En `abysta-dev` ambas están aplicadas;
+el dry-run final devuelve `upToDate=true`, sin archivos pendientes. La corrección
+no altera datos ni el modelo: cambia los conflictos optimistas del directorio y
+las imágenes a `PT409`/HTTP 409. No la apliques fuera del orden numérico del
+historial.
 
 La migración anterior de empresa debe figurar ya aplicada. Si aparecen errores
 de historial, nombres de tablas existentes u otras migraciones inesperadas,

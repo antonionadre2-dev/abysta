@@ -14,6 +14,14 @@ orden:
 2. `20261002002000_directory.sql`
 3. `20261002002100_directory_images.sql`
 
+Una corrección posterior,
+`20261002003100_http_conflict_codes.sql`, se probó localmente y se aplicó después
+a `abysta-dev`. Sustituye los SQLSTATE `40001` usados como conflictos optimistas
+por `PT409`/HTTP 409 en las funciones de directorio e imágenes. El dry-run final
+devuelve `upToDate=true`, sin migraciones pendientes. No formó parte de la
+aceptación original descrita en este informe, pero sí del historial alojado
+actual.
+
 El preflight confirmó que `storage.allow_any_operation(text[])` existe y que el
 rol `authenticated` puede ejecutarlo. El bucket `abysta-directory-images` es
 privado, admite únicamente WebP de hasta 3 MiB y conserva las siete políticas

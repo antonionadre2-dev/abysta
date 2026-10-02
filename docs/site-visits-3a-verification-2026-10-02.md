@@ -43,15 +43,16 @@ del entorno, no del módulo.
 
 ## Migración y aceptación alojada
 
-El dry-run mostró únicamente
+El dry-run inicial mostró únicamente
 `supabase/migrations/20261002003000_site_visits.sql`. Se aplicó a `abysta-dev`
-(project ref `vplvaitpxcpnfuhvwlxb`) y el historial remoto quedó sincronizado con
-estas cuatro versiones:
+(project ref `vplvaitpxcpnfuhvwlxb`). Tras aplicar también la corrección posterior
+`03100`, el historial remoto quedó sincronizado con estas cinco versiones:
 
 - `20261002000100_company_setup.sql`
 - `20261002002000_directory.sql`
 - `20261002002100_directory_images.sql`
 - `20261002003000_site_visits.sql`
+- `20261002003100_http_conflict_codes.sql`
 
 La aceptación utilizó dos usuarios reales de Supabase, dos empresas temporales y
 dos sesiones autenticadas independientes. Pasaron estas 12 comprobaciones:
@@ -86,6 +87,24 @@ Como la versión `03000` se había aplicado antes de descubrirlo, la definición
 `save_site_visit` se corrigió de forma acotada en `abysta-dev` y se verificó que
 no conserva ningún `40001`. Una instalación nueva recibe directamente la
 definición corregida desde la única migración 3A.
+
+Después de cerrar esta aceptación se preparó
+`20261002003100_http_conflict_codes.sql` para aplicar el mismo contrato HTTP a
+los tres conflictos heredados de `save_directory_record` y al conflicto de
+`set_directory_image`. `npm run test:directory` pasa con esa migración y confirma
+que esas funciones quedan en `PT409`. La corrección `03100` se aplicó después en
+`abysta-dev`; el dry-run final devolvió `upToDate=true`, sin migraciones
+pendientes. Este endurecimiento posterior sí forma parte del historial alojado
+actual, pero no de la aceptación 12/12 de Site Visits ya concluida.
+
+También se preparó localmente la recuperación de contraseña por
+`/auth/callback?next=/auth/update-password`. El callback intercambia el código
+PKCE antes de mostrar el formulario, y las rutas de confirmación solo aceptan
+destinos internos. El panel alojado ya usa `http://localhost:3001` como Site URL;
+la allowlist conserva `http://localhost:3000/**` y añade
+`http://localhost:3001/**`. Solo falta la prueba end-to-end con un correo nuevo,
+temporalmente bloqueada por el límite de envío de correo. Este endurecimiento de
+Auth tampoco se incluye en el resultado alojado 12/12 de Site Visits.
 
 ## Limpieza y protección de datos reales
 

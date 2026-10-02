@@ -1,6 +1,6 @@
 # Abysta phase 2 — Directory data contract
 
-This milestone creates an owner-only directory of customers, independent buildings and portfolios. It builds on company setup migration `20261002000100_company_setup.sql`; apply `20261002002000_directory.sql` next. Image storage and image pointer columns belong to the following image migration.
+This milestone creates an owner-only directory of customers, independent buildings and portfolios. It builds on company setup migration `20261002000100_company_setup.sql`; apply `20261002002000_directory.sql` next. Image storage and image pointer columns belong to the following image migration. Follow-up migration `20261002003100_http_conflict_codes.sql` changes only the stale-write SQLSTATE in the directory and image RPCs to `PT409`/HTTP 409; it does not change their payloads, grants or data model.
 
 The operator tenant is the business using Abysta. A client company is its customer. A portfolio groups buildings belonging to one customer. A building may belong to several portfolios; grouping does not copy the building, its contacts or its later visit history. There is no product limit of 10 or 15 buildings. This save API accepts up to 5,000 selected building IDs in one portfolio request as an operational input bound.
 
@@ -88,7 +88,7 @@ Raw database details must not be shown to end users. The application maps the st
 | `FORBIDDEN` | No current active internal owner authority or company inactive |
 | `INVALID_INPUT` | Invalid kind, identifiers, version, object shape, field type or value |
 | `RECORD_NOT_FOUND` | Record or specified customer does not exist in this tenant |
-| `STALE_RECORD` | Submitted version is outdated or a create ID already exists |
+| `STALE_RECORD` | Submitted version is outdated or a create ID already exists; `PT409` maps this permanent optimistic conflict to HTTP 409 after migration `03100` |
 | `PARENT_ARCHIVED` | Customer must be restored before a new child mutation |
 | `IMMUTABLE_CLIENT` | Existing building or portfolio cannot move to another customer |
 | `DUPLICATE_REFERENCE` | Nonempty reference already exists in its case-insensitive scope |
@@ -103,11 +103,11 @@ Run from `web`:
 node --test ../supabase/tests/directory.test.mjs
 ```
 
-The test loads the unchanged company and directory migrations into disposable PGlite PostgreSQL with a minimal Auth schema. **42 named acceptance cases pass** (Node reports 43 including the parent test). Evidence includes owner-only access across all tables; denial of direct writes and private receipt reads; two customers and two operating companies; 15 independent buildings in overlapping 15- and 10-building portfolios; a 16-building portfolio; contact separation; tenant/customer composite foreign keys; reference scopes; invalid fields; retries; stale versions; contact-trigger rollback; link removal/re-add history; archive/restore; and authority revocation.
+The test loads the company, directory, image and `03100` conflict-code migrations into disposable PGlite PostgreSQL with a minimal Auth schema. **42 named acceptance cases pass** (Node reports 43 including the parent test). It also asserts that the directory RPC contains three `PT409` conflicts and no custom `40001`. Evidence includes owner-only access across all tables; denial of direct writes and private receipt reads; two customers and two operating companies; 15 independent buildings in overlapping 15- and 10-building portfolios; a 16-building portfolio; contact separation; tenant/customer composite foreign keys; reference scopes; invalid fields; retries; stale versions; contact-trigger rollback; link removal/re-add history; archive/restore; and authority revocation.
 
 Before production, record responsible tester, date, commit and evidence for:
 
-1. Apply the migration to the intended development Supabase project with migration tracking; verify API grants and RLS under actual Auth sessions through PostgREST.
+1. Keep migration tracking synchronized in the intended Supabase project. Migration `03100` is locally verified and applied in `abysta-dev`; the final dry-run reports `upToDate=true` with no pending files. Stale directory and image writes now use `STALE_RECORD` with HTTP 409, while API grants and RLS remain unchanged.
 2. Use two owner sessions on one tenant to submit different values at the same read version. Exactly one edit succeeds; the other receives `STALE_RECORD`. No contact or link partial update remains.
 3. Submit the same request key concurrently from independent connections. One parent/contact/link set is stored and both successful responses identify the same record. Repeat with altered payload; it must fail with `REQUEST_KEY_REUSED`.
 4. Hold a transaction while another connection revokes the owner's membership or archives the customer/company. Confirm lock ordering and post-wait authorization/parent checks prevent an operation ordered after the change. Roll back the held session and verify retry works.

@@ -2,10 +2,13 @@
 
 Entrega de desarrollo del 2 de octubre de 2026. Interfaz en inglés.
 Se aplicó sobre el commit local `f68e0c4` del módulo Clients → Portfolios →
-Buildings, en la rama `feature/site-visits-3a`. La única migración nueva está
-aplicada en `abysta-dev`; la aceptación alojada y la limpieza se documentan en
-`docs/site-visits-3a-verification-2026-10-02.md`. No se añadieron credenciales ni
-datos de la empresa al código.
+Buildings, en la rama `feature/site-visits-3a`. La migración funcional de visitas
+`20261002003000_site_visits.sql` está aplicada en `abysta-dev`; la aceptación
+alojada y la limpieza se documentan en
+`docs/site-visits-3a-verification-2026-10-02.md`. La corrección posterior
+`20261002003100_http_conflict_codes.sql` también está probada y aplicada al
+proyecto alojado. El dry-run final devuelve `upToDate=true`, sin migraciones
+pendientes. No se añadieron credenciales ni datos de la empresa al código.
 
 ## Qué puedes hacer
 
@@ -141,13 +144,17 @@ aplicarlo puedes mover el archivo `.patch` fuera del repositorio.
 npx supabase@2.119.0 db push --dry-run --skip-vault
 ```
 
-Antes del primer despliegue debe aparecer únicamente la nueva migración
-`20261002003000_site_visits.sql`. Después de aplicarla, como ocurre ya en
-`abysta-dev`, el dry-run no debe mostrar migraciones pendientes. Las migraciones
-de empresa, directorio e imágenes deben estar sincronizadas. Si aparece otra,
+Antes del primer despliegue de 3A debe aparecer
+`20261002003000_site_visits.sql`. La rama actual contiene además
+`20261002003100_http_conflict_codes.sql`, que sustituye por `PT409` los cuatro
+conflictos optimistas heredados de Directorio e Imágenes. En el estado actual de
+`abysta-dev`, tanto `03000` como `03100` están aplicadas y el dry-run devuelve
+`upToDate=true`, sin archivos pendientes. En una instalación nueva se aplican
+todas las migraciones en orden numérico. Si aparece cualquier diferencia,
 verifica el proyecto y el historial antes de continuar.
 
-4. Aplica la migración de desarrollo e instala/verifica el código:
+4. En otra copia, aplica las migraciones que haya mostrado el dry-run e
+   instala/verifica el código. En la copia actual el `db push` no tiene cambios:
 
 ```bash
 npx supabase@2.119.0 db push --skip-vault
@@ -166,6 +173,25 @@ Usa Node.js 24. Conserva tu configuración de Supabase existente. Si ya hay un
 servidor del proyecto en 3001, detenlo con Ctrl+C en su terminal antes de arrancar
 el nuevo. No es necesario tocar el otro proyecto que utiliza 3000.
 Abre http://localhost:3001. Esta entrega no añade dependencias.
+
+### Recuperación de contraseña en el puerto 3001
+
+El panel alojado de Supabase, **Authentication → URL Configuration**, ya usa
+`http://localhost:3001` como Site URL. Su allowlist conserva
+`http://localhost:3000/**` y añade `http://localhost:3001/**`. El archivo
+`supabase/config.toml` configura la pila local de Supabase, no cambia el panel de
+`abysta-dev`.
+
+**Forgot password** solicita un enlace hacia
+`/auth/callback?next=/auth/update-password`. El callback intercambia el código
+PKCE en el servidor, valida que `next` sea una ruta interna y solo entonces abre
+el formulario protegido de nueva contraseña. Mantén la plantilla **Reset
+password** con `{{ .ConfirmationURL }}`; la plantilla personalizada de
+confirmación de alta sigue usando `/auth/confirm` y `token_hash`. Tras cambiar
+las URL del panel hay que solicitar un correo nuevo, porque los enlaces anteriores
+conservan el destino con el que fueron emitidos. Esa prueba end-to-end es el único
+paso pendiente de este flujo y está temporalmente bloqueada por el límite de envío
+de correo del servicio alojado.
 
 ## Prueba de aceptación en abysta-dev
 

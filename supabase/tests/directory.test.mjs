@@ -21,8 +21,18 @@ test('Directory SQL: owner boundary, parent integrity, histories and transaction
     create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid; $$;
     grant usage on schema auth,public to anon,authenticated;
     grant execute on function auth.uid() to anon,authenticated;
+    create schema storage;
+    create function storage.allow_any_operation(operations text[]) returns boolean language sql stable as $$ select false $$;
+    create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+    create table storage.objects(id uuid default gen_random_uuid() primary key,bucket_id text references storage.buckets(id),name text,owner_id text,metadata jsonb,unique(bucket_id,name));
+    alter table storage.objects enable row level security;
+    grant usage on schema storage to authenticated,anon;
+    grant select,insert,update,delete on storage.objects to authenticated,anon;
   `);
-  for(const file of ['20261002000100_company_setup.sql','20261002002000_directory.sql']) await db.exec(await readFile(new URL(`../migrations/${file}`,import.meta.url),'utf8'));
+  for(const file of ['20261002000100_company_setup.sql','20261002002000_directory.sql','20261002002100_directory_images.sql','20261002003100_http_conflict_codes.sql']) await db.exec(await readFile(new URL(`../migrations/${file}`,import.meta.url),'utf8'));
+  const directoryDefinition=(await db.query("select pg_get_functiondef('public.save_directory_record(text,uuid,uuid,bigint,uuid,jsonb)'::regprocedure) definition")).rows[0].definition;
+  assert.doesNotMatch(directoryDefinition,/40001/);
+  assert.equal(directoryDefinition.match(/PT409/g)?.length,3);
   for(let n=1;n<=9;n++) await db.query('insert into auth.users values($1,now())',[uuid(n)]);
   async function asActor(actor, fn, role='authenticated') {
     await db.exec('begin');
@@ -156,13 +166,13 @@ test('Directory SQL: owner boundary, parent integrity, histories and transaction
     const contact=(await db.query('select name from client_contact where site_id=$1',[sites[0]])).rows[0];assert.equal(contact.name,'Updated contact');
   });
   await t.test('optimistic versions reject stale updates and stale archive attempts without losing contacts',async()=>{
-    await fail(()=>save('site',sites[0],siteData(c1,{name:'Overwrite',reference:'B1'}),1),'STALE_RECORD','40001');
-    await fail(()=>save('site',sites[0],siteData(c1,{status:'archived',reference:'B1'}),1),'STALE_RECORD');
+    await fail(()=>save('site',sites[0],siteData(c1,{name:'Overwrite',reference:'B1'}),1),'STALE_RECORD','PT409');
+    await fail(()=>save('site',sites[0],siteData(c1,{status:'archived',reference:'B1'}),1),'STALE_RECORD','PT409');
     assert.equal((await get('site',sites[0])).name,'Updated building 1');
     assert.equal((await db.query('select name from client_contact where site_id=$1',[sites[0]])).rows[0].name,'Updated contact');
   });
   await t.test('record creation collisions and updates to missing records are explicit',async()=>{
-    await fail(()=>save('site',sites[0],siteData(c1,{reference:'new'})),'STALE_RECORD');
+    await fail(()=>save('site',sites[0],siteData(c1,{reference:'new'})),'STALE_RECORD','PT409');
     await fail(()=>save('site',uuid(399),siteData(c1),1),'RECORD_NOT_FOUND');
   });
   await t.test('a saved building or portfolio cannot be moved to another client',async()=>{

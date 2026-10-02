@@ -26,7 +26,9 @@ test('Directory images: immutable references and private Storage policies',async
   grant usage on schema storage to authenticated,anon;
   grant select,insert,update,delete on storage.objects to authenticated,anon;
  `);
- for(const file of ['20261002000100_company_setup.sql','20261002002000_directory.sql','20261002002100_directory_images.sql'])await db.exec(await readFile(new URL(`../migrations/${file}`,import.meta.url),'utf8'));
+ for(const file of ['20261002000100_company_setup.sql','20261002002000_directory.sql','20261002002100_directory_images.sql','20261002003100_http_conflict_codes.sql'])await db.exec(await readFile(new URL(`../migrations/${file}`,import.meta.url),'utf8'));
+ const imageDefinition=(await db.query("select pg_get_functiondef('public.set_directory_image(text,uuid,uuid,bigint,uuid,uuid,text,integer,integer,bigint)'::regprocedure) definition")).rows[0].definition;
+ assert.doesNotMatch(imageDefinition,/40001/);assert.equal(imageDefinition.match(/PT409/g)?.length,1);
  for(let n=1;n<=6;n++)await db.query('insert into auth.users values($1,now())',[uuid(n)]);
  async function as(actor,sql,params=[],role='authenticated',operation='object.get_authenticated'){
   await db.exec('begin');try{await db.exec(`set local role ${role}`);await db.query("select set_config('request.jwt.claim.sub',$1,true)",[actor??'']);await db.query("select set_config('test.storage.operation',$1,true)",[operation]);const rows=(await db.query(sql,params)).rows;await db.exec('commit');return rows;}catch(error){await db.exec('rollback');throw error;}
@@ -79,7 +81,7 @@ test('Directory images: immutable references and private Storage policies',async
   for(const n of [2,3,5,6]){assert.deepEqual(await as(uuid(n),'select * from storage.objects'),[]);assert.deepEqual(await as(uuid(n),'select * from asset_version'),[]);}
  });
  await t.test('parent revisions reject old writes and leave pointers untouched',async()=>{
-  await fail(()=>attach(null),'STALE_RECORD');assert.equal((await db.query('select image_asset_id from client_company where tenant_id=$1 and id=$2',[a,c])).rows[0].image_asset_id,asset);
+  await fail(()=>attach(null),'STALE_RECORD','PT409');assert.equal((await db.query('select image_asset_id from client_company where tenant_id=$1 and id=$2',[a,c])).rows[0].image_asset_id,asset);
  });
  await t.test('an existing asset cannot be rebound to another client or building',async()=>{
   await fail(()=>attach(asset,{id:c2}),'IMAGE_UPLOAD_MISSING');await fail(()=>attach(asset,{kind:'site',id:site}),'IMAGE_UPLOAD_MISSING');
